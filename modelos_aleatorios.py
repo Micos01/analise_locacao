@@ -12,7 +12,7 @@ load_dotenv()
 
 # --- CONFIGURAÇÕES ---
 PASTA_ENTRADA = os.getenv("PASTA_ENTRADA")
-PASTA_SAIDA_FINAL = os.getenv("ALEATORIOS_TESTE_JSON")
+PASTA_SAIDA_FINAL = os.getenv("PASTA_SAIDA_FINAL")
 DIR_LOGS = r"outputs\logs"
 
 # Configuração da API
@@ -21,7 +21,7 @@ CLIENTE_API = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY"),
     default_headers={"HTTP-Referer": "https://merca.com.br", "X-Title": "Auditor Contratos (Pedro)"}
 )
-MODELO_IA = "anthropic/claude-3.5-sonnet"
+MODELO_IA = "nvidia/nemotron-nano-12b-v2-vl:free"
 
 # Configuração de Logs e Pastas
 os.makedirs(PASTA_SAIDA_FINAL, exist_ok=True)
@@ -168,12 +168,12 @@ Proceda com a análise completa seguindo as três etapas acima e retorne apenas 
 def executar_extracao():
     """Função principal que orquestra a leitura e envio."""
     if not os.path.exists(PASTA_ENTRADA):
-        print(f" Diretório não encontrado: {PASTA_ENTRADA}")
+        print(f"Diretório não encontrado: {PASTA_ENTRADA}")
         return
 
     arquivos = [f for f in os.listdir(PASTA_ENTRADA) if f.lower().endswith('.pdf')]
-    logging.info(f" INICIANDO EXTRAÇÃO DE CUSTOS: {len(arquivos)} arquivos")
-    print(f" Iniciando processamento de {len(arquivos)} arquivos...")
+    logging.info(f"INICIANDO EXTRAÇÃO DE CUSTOS: {len(arquivos)} arquivos")
+    print(f"Iniciando processamento de {len(arquivos)} arquivos...")
 
     for i, arquivo in enumerate(arquivos):
         nome_safe = os.path.splitext(arquivo)[0]
@@ -181,16 +181,16 @@ def executar_extracao():
 
         # Pula se já existe (Economia de API)
         if os.path.exists(caminho_salvamento):
-            logging.info(f" Pulando: {arquivo}")
-            print(f" [{i+1}/{len(arquivos)}] Pulando (Já existe): {arquivo}")
+            logging.info(f"Pulando: {arquivo}")
+            print(f"[{i+1}/{len(arquivos)}] Pulando (Já existe): {arquivo}")
             continue
 
         logging.info(f"[{i+1}/{len(arquivos)}] Processando: {arquivo}")
-        print(f" [{i+1}/{len(arquivos)}] Processando: {arquivo}...")
+        print(f"[{i+1}/{len(arquivos)}] Processando: {arquivo}...")
         
         imagens = converter_pdf_para_vision(os.path.join(PASTA_ENTRADA, arquivo))
         if not imagens:
-            logging.error(f"    Falha ao converter imagens: {arquivo}")
+            logging.error(f"Falha ao converter imagens: {arquivo}")
             continue
 
         resposta_raw = consultar_claude_raw(imagens, arquivo)
@@ -205,11 +205,11 @@ def executar_extracao():
             with open(caminho_salvamento, 'w', encoding='utf-8') as f:
                 json.dump(pacote_dados, f, indent=4, ensure_ascii=False)
             
-            logging.info(f"    Custos calculados e salvos: {caminho_salvamento}")
-            print(f"    Sucesso! Salvo em: {caminho_salvamento}")
+            logging.info(f"Custos calculados e salvos: {caminho_salvamento}")
+            print(f"Sucesso! Salvo em: {caminho_salvamento}")
         else:
-            logging.error(f"    Falha na API: {arquivo}")
-            print(f"    Erro na API para: {arquivo}")
+            logging.error(f"Falha na API: {arquivo}")
+            print(f"Erro na API para: {arquivo}")
 
 if __name__ == "__main__":
     executar_extracao()

@@ -254,7 +254,7 @@ def processar_inteligente():
         return
 
     arquivos_json = [f for f in os.listdir(PASTA_ENTRADA) if f.endswith('_RAW.json')]
-    print(f"🧠 Iniciando Auditoria Inteligente com Gemini 2.0 Flash em {len(arquivos_json)} arquivos...")
+    print(f" Iniciando Auditoria Inteligente com Gemini 2.0 Flash em {len(arquivos_json)} arquivos...")
     
     resultados_finais = []
     
@@ -306,7 +306,7 @@ def processar_inteligente():
                 resultados_finais.append(registro)
                 
         except Exception as e:
-            print(f"❌ Erro em {arq}: {e}")
+            print(f" Erro em {arq}: {e}")
 
     # GERA O EXCEL
     if resultados_finais:
@@ -334,7 +334,7 @@ def processar_inteligente():
         worksheet.set_column('C:C', 50) # Motivo Gemini
         
         writer.close()
-        print(f"\n✅ Relatório Gemini Flash gerado: {caminho_excel}")
+        print(f"\n Relatório Gemini Flash gerado: {caminho_excel}")
 
 if __name__ == "__main__":
     processar_inteligente()
