@@ -5,7 +5,7 @@ from datetime import datetime
 
 # --- CONFIGURAÇÕES ---
 # Coloque aqui a pasta "Mãe". O script vai olhar tudo que tem dentro dela.
-DIRETORIO_RAIZ = r"outputs\documentos\Merca"  
+DIRETORIO_RAIZ = os.getenv("DIRETORIO_RAIZ")  
 
 CUSTO_MEDIO_POR_IMAGEM_USD = 0.0645       # Estimativa Claude 3.5 Sonnet
 TAXA_DOLAR = 6.00                         # Cotação

@@ -11,9 +11,10 @@ from openai import OpenAI
 load_dotenv()
 
 # --- CONFIGURAÇÕES ---
-PASTA_ENTRADA = r"outputs\documentos"
-PASTA_SAIDA_JSON = r"outputs\dados_juridicos_json"
-PASTA_SAIDA_FINAL = r"outputs\relatorios_excel"
+PASTA_ENTRADA = os.getenv("PASTA_ENTRADA")
+PASTA_SAIDA_JSON = os.getenv("PASTA_SAIDA_JSON")
+PASTA_SAIDA_FINAL = os.getenv("PASTA_SAIDA_FINAL")
+
 
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1", 

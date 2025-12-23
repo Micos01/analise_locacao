@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # --- CONFIGURAÇÕES ---
-DIR_ENTRADA = r"MVP\para_mvp"
-DIR_SAIDA_BRUTA = r"MVP\para_mvp\dados_brutos_ia"
+PASTA_ENTRADA = os.getenv("PASTA_ENTRADA")
+PASTA_SAIDA_FINAL = os.getenv("PASTA_SAIDA_FINAL")
 DIR_LOGS = r"outputs\logs"
 
 # Configuração da API
@@ -24,7 +24,7 @@ CLIENTE_API = OpenAI(
 MODELO_IA = "anthropic/claude-3.5-sonnet"
 
 # Configuração de Logs e Pastas
-os.makedirs(DIR_SAIDA_BRUTA, exist_ok=True)
+os.makedirs(PASTA_SAIDA_FINAL, exist_ok=True)
 os.makedirs(DIR_LOGS, exist_ok=True)
 logging.basicConfig(
     filename=os.path.join(DIR_LOGS, f"extracao_{datetime.now().strftime('%Y%m%d')}.log"),
@@ -167,17 +167,17 @@ Proceda com a análise completa seguindo as três etapas acima e retorne apenas 
 
 def executar_extracao():
     """Função principal que orquestra a leitura e envio."""
-    if not os.path.exists(DIR_ENTRADA):
-        print(f"❌ Diretório não encontrado: {DIR_ENTRADA}")
+    if not os.path.exists(PASTA_ENTRADA):
+        print(f"❌ Diretório não encontrado: {PASTA_ENTRADA}")
         return
 
-    arquivos = [f for f in os.listdir(DIR_ENTRADA) if f.lower().endswith('.pdf')]
+    arquivos = [f for f in os.listdir(PASTA_ENTRADA) if f.lower().endswith('.pdf')]
     logging.info(f"🚀 INICIANDO EXTRAÇÃO DE CUSTOS: {len(arquivos)} arquivos")
     print(f"🚀 Iniciando processamento de {len(arquivos)} arquivos...")
 
     for i, arquivo in enumerate(arquivos):
         nome_safe = os.path.splitext(arquivo)[0]
-        caminho_salvamento = os.path.join(DIR_SAIDA_BRUTA, f"{nome_safe}_RAW.json")
+        caminho_salvamento = os.path.join(PASTA_SAIDA_FINAL, f"{nome_safe}_RAW.json")
 
         # Pula se já existe (Economia de API)
         if os.path.exists(caminho_salvamento):
@@ -188,7 +188,7 @@ def executar_extracao():
         logging.info(f"[{i+1}/{len(arquivos)}] Processando: {arquivo}")
         print(f"🔄 [{i+1}/{len(arquivos)}] Processando: {arquivo}...")
         
-        imagens = converter_pdf_para_vision(os.path.join(DIR_ENTRADA, arquivo))
+        imagens = converter_pdf_para_vision(os.path.join(PASTA_ENTRADA, arquivo))
         if not imagens:
             logging.error(f"   ❌ Falha ao converter imagens: {arquivo}")
             continue

@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # --- CONFIGURAÇÕES ---
-DIR_DADOS_BRUTOS = r"MVP\para_mvp\dados_brutos_ia"
-DIR_RELATORIOS = r"outputs\relatorios_finais" # Ajustei para o padrão, mude se necessário
+PASTA_ENTRADA = os.getenv("DIR_ENTRADA")
+PASTA_SAIDA_FINAL = os.getenv("PASTA_SAIDA_FINAL")
 
 # Configuração API (Usando OpenRouter para acessar Gemini)
 CLIENTE_API = OpenAI(
@@ -249,17 +249,17 @@ return only json below
     return {"acao_recomendada": "MANUAL", "motivo_estrategico": "Erro na análise IA"}
 
 def processar_inteligente():
-    if not os.path.exists(DIR_DADOS_BRUTOS):
+    if not os.path.exists(PASTA_ENTRADA):
         print("Pasta de dados brutos não encontrada.")
         return
 
-    arquivos_json = [f for f in os.listdir(DIR_DADOS_BRUTOS) if f.endswith('_RAW.json')]
+    arquivos_json = [f for f in os.listdir(PASTA_ENTRADA) if f.endswith('_RAW.json')]
     print(f"🧠 Iniciando Auditoria Inteligente com Gemini 2.0 Flash em {len(arquivos_json)} arquivos...")
     
     resultados_finais = []
     
     for i, arq in enumerate(arquivos_json):
-        caminho = os.path.join(DIR_DADOS_BRUTOS, arq)
+        caminho = os.path.join(PASTA_ENTRADA, arq)
         try:
             print(f"[{i+1}/{len(arquivos_json)}] Analisando: {arq}...")
             
@@ -310,14 +310,14 @@ def processar_inteligente():
 
     # GERA O EXCEL
     if resultados_finais:
-        os.makedirs(DIR_RELATORIOS, exist_ok=True)
+        os.makedirs(PASTA_SAIDA_FINAL, exist_ok=True)
         df = pd.DataFrame(resultados_finais)
         
         # Ordenação
         df.sort_values(by="CUSTO_REGISTRO", ascending=False, inplace=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        caminho_excel = os.path.join(DIR_RELATORIOS, f"Relatorio_{timestamp}.xlsx")
+        caminho_excel = os.path.join(PASTA_SAIDA_FINAL, f"Relatorio_{timestamp}.xlsx")
         
         writer = pd.ExcelWriter(caminho_excel, engine='xlsxwriter')
         df.to_excel(writer, index=False, sheet_name='Auditoria')

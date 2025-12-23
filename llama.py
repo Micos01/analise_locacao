@@ -5,13 +5,13 @@ import logging
 from datetime import datetime
 from openai import OpenAI
 from dotenv import load_dotenv
-from llama_parse import LlamaParse  # <--- NOVA BIBLIOTECA
+from llama_parse import LlamaParse  
 
 load_dotenv()
 
 # --- CONFIGURAÇÕES ---
-DIR_ENTRADA = r"outputs\documentos\JB"
-DIR_SAIDA_BRUTA = r"outputs\dados_brutos_ia"
+PASTA_SAIDA_FINAL = os.getenv("PASTA_SAIDA_FINAL")
+PASTA_SAIDA_JSON = os.getenv("PASTA_SAIDA_JSON")
 DIR_LOGS = r"outputs\logs"
 
 # Configuração API OpenRouter (Para a Inteligência)
@@ -31,7 +31,7 @@ parser = LlamaParse(
     verbose=True
 )
 
-os.makedirs(DIR_SAIDA_BRUTA, exist_ok=True)
+os.makedirs(PASTA_SAIDA_JSON, exist_ok=True)
 os.makedirs(DIR_LOGS, exist_ok=True)
 logging.basicConfig(
     filename=os.path.join(DIR_LOGS, f"extracao_llama_{datetime.now().strftime('%Y%m%d')}.log"),
@@ -150,17 +150,17 @@ Use a Base da Etapa 2 na tabela abaixo:
     return None
 
 def executar_extracao():
-    if not os.path.exists(DIR_ENTRADA):
-        print(f"❌ Diretório não encontrado: {DIR_ENTRADA}")
+    if not os.path.exists(PASTA_SAIDA_FINAL):
+        print(f"❌ Diretório não encontrado: {PASTA_SAIDA_FINAL}")
         return
 
-    arquivos = [f for f in os.listdir(DIR_ENTRADA) if f.lower().endswith('.pdf')]
+    arquivos = [f for f in os.listdir(PASTA_SAIDA_FINAL) if f.lower().endswith('.pdf')]
     logging.info(f"🚀 INICIANDO EXTRAÇÃO VIA LLAMAPARSE: {len(arquivos)} arquivos")
     print(f"🚀 Iniciando processamento de {len(arquivos)} arquivos (LlamaParse)...")
 
     for i, arquivo in enumerate(arquivos):
         nome_safe = os.path.splitext(arquivo)[0]
-        caminho_salvamento = os.path.join(DIR_SAIDA_BRUTA, f"{nome_safe}_RAW.json")
+        caminho_salvamento = os.path.join(PASTA_SAIDA_JSON, f"{nome_safe}_RAW.json")
 
         if os.path.exists(caminho_salvamento):
             logging.info(f"⏩ Pulando: {arquivo}")
@@ -170,7 +170,7 @@ def executar_extracao():
         logging.info(f"[{i+1}/{len(arquivos)}] Processando: {arquivo}")
         print(f"🔄 [{i+1}/{len(arquivos)}] Lendo PDF com LlamaParse: {arquivo}...")
         
-        caminho_pdf = os.path.join(DIR_ENTRADA, arquivo)
+        caminho_pdf = os.path.join(PASTA_SAIDA_FINAL, arquivo)
         
         # 1. Extrai Texto (LlamaParse)
         texto_extraido = extrair_texto_llama(caminho_pdf)
